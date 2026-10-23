@@ -1,0 +1,1 @@
+export default function Page() { return <header className="page-heading"><div><p className="eyebrow">MON ESPACE</p><h1>Mes demandes</h1><p>Votre assistance médicale, à chaque étape.</p></div></header>; }
