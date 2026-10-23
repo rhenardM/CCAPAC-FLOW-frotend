@@ -1,0 +1,16 @@
+"use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { ArrowLeft, Eye, EyeOff, LockKeyhole, ShieldCheck } from "lucide-react";
+import Brand from "@/components/brand";
+import { Button, Input } from "@/components/ui";
+import { authenticate, requestPasswordReset } from "@/lib/api";
+export default function AuthForm({ forgot = false }) {
+  const router = useRouter(); const [visible, setVisible] = useState(false); const [error, setError] = useState(""); const [success, setSuccess] = useState(false); const [busy, setBusy] = useState(false);
+  async function submit(event) {
+    event.preventDefault(); setBusy(true); setError(""); const values = new FormData(event.currentTarget);
+    try { if (forgot) { await requestPasswordReset(values.get("email")); setSuccess(true); } else { const result = await authenticate({ identifier: values.get("identifier"), password: values.get("password") }); router.push(`/${result.role}`); } } catch (failure) { setError(failure.message); } finally { setBusy(false); }
+  }
+  return <main id="contenu" className="auth-page"><div className="auth-top"><Brand /><span>PORTAIL DES AGENTS</span></div><div className="auth-content"><div className="auth-heading"><span className="auth-icon"><LockKeyhole size={22} /></span><h1>{forgot ? "Mot de passe oublié" : "Bons d’assistance médicale"}</h1><p>{forgot ? "Saisissez l’adresse e-mail associée à votre compte." : "Connectez-vous pour faire une demande ou suivre vos dossiers."}</p></div>{success ? <div className="notice notice-success" role="status"><strong>Demande de réinitialisation enregistrée</strong><p>Mode démonstration : aucun e-mail n’est envoyé. Le mot de passe de démonstration reste inchangé.</p><Button href="/connexion" variant="secondary">Retour à la connexion</Button></div> : <form onSubmit={submit} className="stack">{forgot ? <Input label="Adresse e-mail" name="email" type="email" autoComplete="email" required placeholder="prenom.nom@centreculturel.cd" /> : <><Input label="Matricule ou e-mail" name="identifier" autoComplete="username" required placeholder="AG-0123" /><div className="password-field"><Input label="Mot de passe" name="password" type={visible ? "text" : "password"} autoComplete="current-password" required placeholder="Votre mot de passe" /><button type="button" className="icon-button" aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"} onClick={() => setVisible(!visible)}>{visible ? <EyeOff size={18} /> : <Eye size={18} />}</button></div><Link className="forgot-link" href="/mot-de-passe-oublie">Mot de passe oublié ?</Link></>}{error && <p className="field-error" role="alert">{error}</p>}<Button type="submit" loading={busy}>{forgot ? "Demander la réinitialisation" : "Se connecter"}</Button>{forgot && <Button href="/connexion" variant="ghost"><ArrowLeft size={16} />Retour à la connexion</Button>}</form>}{process.env.NODE_ENV === "development" && !forgot && <p className="demo-credentials">Démo : AG-0123 · GrandTambour2026!</p>}</div><footer className="auth-footer"><ShieldCheck size={16} /><span>Connexion sécurisée · Données médicales confidentielles</span></footer></main>;
+}
