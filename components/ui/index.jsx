@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
-import { AlertCircle, ArrowLeft, Check, CheckCircle2, FileText, LoaderCircle, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText, LoaderCircle, X } from "lucide-react";
 import { formatAmount, formatDate, statusLabels } from "@/lib/api/rules";
 export function Button({ children, variant = "primary", className = "", href, loading, ...props }) {
   const classes = `button button-${variant} ${className}`;
@@ -23,6 +23,20 @@ export function StatusBadge({ status }) {
 }
 export function EmptyState({ title = "Aucun résultat", description = "Aucune demande ne correspond à votre recherche.", action }) { return <div className="empty-state"><span className="empty-icon"><FileText size={27} /></span><h2>{title}</h2><p>{description}</p>{action}</div>; }
 export function Skeleton({ rows = 4 }) { return <div className="stack" role="status" aria-label="Chargement en cours"><span className="sr-only">Chargement en cours</span>{Array.from({ length: rows }, (_, index) => <div className="skeleton" key={index} />)}</div>; }
+export function Pagination({ page, pageSize, total, onChange }) {
+  if (!total) return null;
+  const pageCount = Math.ceil(total / pageSize);
+  const first = (page - 1) * pageSize + 1;
+  const last = Math.min(page * pageSize, total);
+  return <nav className="pagination" aria-label="Pagination des demandes">
+    <p className="pagination-summary" role="status">{first} à {last} sur {total} demande{total > 1 ? "s" : ""}</p>
+    <div className="pagination-controls">
+      <Button variant="secondary" className="pagination-button" aria-label="Page précédente" title="Page précédente" disabled={page <= 1} onClick={() => onChange(page - 1)}><ChevronLeft size={18} /></Button>
+      <span className="pagination-current">Page {page} sur {pageCount}</span>
+      <Button variant="secondary" className="pagination-button" aria-label="Page suivante" title="Page suivante" disabled={page >= pageCount} onClick={() => onChange(page + 1)}><ChevronRight size={18} /></Button>
+    </div>
+  </nav>;
+}
 export function ErrorState({ error, retry }) { return <div className="error-state" role="alert"><AlertCircle size={25} /><h2>Chargement interrompu</h2><p>{error?.message || "Une erreur est survenue."}</p><Button variant="secondary" onClick={retry}>Réessayer</Button></div>; }
 export function Table({ columns, rows, rowKey = "id", selectedId, onSelect, empty }) { return <div className="table-frame" tabIndex={0} role="region" aria-label="Tableau défilant"><table><thead><tr>{columns.map(column => <th key={column.key} scope="col">{column.label}</th>)}</tr></thead><tbody>{rows.map(row => <tr key={row[rowKey]} className={selectedId === row[rowKey] ? "selected" : ""}>{columns.map((column, index) => <td key={column.key}>{onSelect && index === 0 ? <button className="table-select" onClick={() => onSelect(row)} aria-label={`Ouvrir ${row[rowKey]}`} aria-pressed={selectedId === row[rowKey]}>{column.render ? column.render(row) : row[column.key]}</button> : column.render ? column.render(row) : row[column.key]}</td>)}</tr>)}</tbody></table>{!rows.length && (empty || <EmptyState />)}</div>; }
 export function PageHeading({ title, description, eyebrow, action, back }) { return <header className="page-heading"><div>{back && <Link className="back-link" href={back}><ArrowLeft size={16} /> Retour</Link>}{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h1>{title}</h1>{description && <p>{description}</p>}</div>{action}</header>; }

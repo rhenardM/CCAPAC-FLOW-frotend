@@ -1,0 +1,9 @@
+.sidebar > nav { overflow-y: auto; min-height: 0; flex: 1; overscroll-behavior: contain; }
+.sidebar .nav-caption, .drawer .nav-caption { margin: 22px 12px 8px; color: var(--color-secondary); font-size: 11px; }
+.sidebar-footer { padding-top: 12px; }
+.demo-selector { display: grid; gap: 6px; margin: 18px 0; font-size: 12px; color: var(--color-secondary); }
+.demo-selector select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--color-field); border-radius: var(--radius-field); background: var(--color-white); color: var(--color-ink); }
+.topbar .identity { border: 0; padding: 0; }
+.main-content > * { min-width: 0; }
+.topbar .identity strong { max-width: 170px; overflow-wrap: anywhere; }
+@media(max-width: 600px) { .topbar .identity strong { max-width: 140px; font-size: 11px; }.topbar .identity small { font-size: 10px; } }
