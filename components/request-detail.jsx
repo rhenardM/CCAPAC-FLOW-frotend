@@ -3,12 +3,12 @@ import { useState } from "react";
 import { Download, Pencil, X } from "lucide-react";
 import { Button, Card, CurrencyAmount, Dialog, StatusBadge, Stepper, useToast } from "@/components/ui";
 import { transitionRequest } from "@/lib/api";
-import { formatDate, transitions } from "@/lib/api/rules";
+import { formatDate, transitions, isReminded } from "@/lib/api/rules";
 export function Attachments({ files = [] }) {
   return <div className="attachments">{files.length ? files.map(file => <a className="attachment" key={file.name} href={file.dataUrl} download={file.name}><Download size={18} /><span><strong>{file.name}</strong><small>{Math.ceil(file.size / 1024)} Ko · Télécharger</small></span></a>) : <p className="muted text-small">Aucune pièce jointe</p>}</div>;
 }
 export function RequestSummary({ request }) {
-  return <><div className="request-summary"><div className="row between wrap"><span className="muted text-small">{request.id}</span><StatusBadge status={request.status} /></div><CurrencyAmount amount={request.amount} currency={request.currency} className="amount-large" /><p>{request.type} · {request.establishment || "Établissement à préciser"}</p><small className="muted">Créée le {formatDate(request.date, true)}</small></div><div className="detail-info"><div><span>Agent</span><strong>{request.agent}</strong></div><div><span>Matricule</span><strong>{request.agentId}</strong></div><div><span>Département</span><strong>{request.department}</strong></div><div><span>Type d’assistance</span><strong>{request.type}</strong></div></div><div><h3 className="detail-label">Motif</h3><p>{request.reason || "Non renseigné"}</p></div><div><h3 className="detail-label">Pièces jointes</h3><Attachments files={request.attachments} /></div></>;
+  return <><div className="request-summary"><div className="row between wrap"><span className="muted text-small">{request.id}</span><StatusBadge status={request.status} />{isReminded(request) && <span className="badge badge-danger">Relancée</span>}</div><CurrencyAmount amount={request.amount} currency={request.currency} className="amount-large" /><p>{request.type} · {request.establishment || "Établissement à préciser"}</p><small className="muted">Créée le {formatDate(request.date, true)}</small></div><div className="detail-info"><div><span>Agent</span><strong>{request.agent}</strong></div><div><span>Matricule</span><strong>{request.agentId}</strong></div><div><span>Département</span><strong>{request.department}</strong></div><div><span>Type d’assistance</span><strong>{request.type}</strong></div></div><div><h3 className="detail-label">Motif</h3><p>{request.reason || "Non renseigné"}</p></div><div><h3 className="detail-label">Pièces jointes</h3><Attachments files={request.attachments} /></div></>;
 }
 export default function RequestDetail({ request }) {
   const [confirm, setConfirm] = useState(false); const [busy, setBusy] = useState(false); const toast = useToast();
