@@ -5,6 +5,7 @@ import { requestAccountAccess, getData, saveRequest, transitionRequest, resetDem
 import { canAccess } from "../lib/auth/permissions.js";
 import { initialData } from "../lib/mock/data.js";
 import { isReminded } from "../lib/api/rules.js";
+import { inspectUsers } from "../lib/api/import-rules.js";
 test("la Finance transmet au DG quel que soit le montant", () => {
   for (const amount of [1, 1000000]) { const request = { status: "EN_ATTENTE_FINANCE", amount }; assert.doesNotThrow(() => validateTransition(request, "EN_ATTENTE_DG", "finance")); assert.throws(() => validateTransition(request, "APPROUVEE", "finance")); }
 });
@@ -35,6 +36,13 @@ test("démo complète, permissions ouvertes et relances après 48 heures", () =>
   const request = { status: "EN_ATTENTE_DG", date: "2026-10-20T00:00:00Z", history: [] };
   assert.equal(isReminded(request, Date.parse("2026-10-22T00:00:00Z")), false);
   assert.equal(isReminded(request, Date.parse("2026-10-22T00:00:01Z")), true);
+});
+test("import : erreurs par ligne, doublons internes et existants", () => {
+  const row = { matricule: "AG-0300", nom: "Agent Test", email: "test@example.com", departement: "Communication", role: "AGENT" };
+  assert.equal(inspectUsers([row], initialData)[0].errors.length, 0);
+  assert.equal(inspectUsers([row, row], initialData)[1].errors.length, 2);
+  assert.ok(inspectUsers([{ ...row, matricule: "AG-0123" }], initialData)[0].errors.includes("Matricule déjà utilisé"));
+  assert.ok(inspectUsers([{ ...row, departement: "Inconnu", role: "SUPER" }], initialData)[0].errors.length === 2);
 });
 test("circuit partagé, notifications, audit et écart de caisse justifié", async () => {
   const record = await saveRequest({ type: "Consultation", establishment: "Clinique", reason: "Soins", amount: 80, currency: "USD" });

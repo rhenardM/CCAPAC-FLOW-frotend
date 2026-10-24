@@ -23,13 +23,13 @@ export function StatusBadge({ status }) {
 }
 export function EmptyState({ title = "Aucun résultat", description = "Aucune demande ne correspond à votre recherche.", action }) { return <div className="empty-state"><span className="empty-icon"><FileText size={27} /></span><h2>{title}</h2><p>{description}</p>{action}</div>; }
 export function Skeleton({ rows = 4 }) { return <div className="stack" role="status" aria-label="Chargement en cours"><span className="sr-only">Chargement en cours</span>{Array.from({ length: rows }, (_, index) => <div className="skeleton" key={index} />)}</div>; }
-export function Pagination({ page, pageSize, total, onChange }) {
+export function Pagination({ page, pageSize, total, onChange, noun = "demande" }) {
   if (!total) return null;
   const pageCount = Math.ceil(total / pageSize);
   const first = (page - 1) * pageSize + 1;
   const last = Math.min(page * pageSize, total);
   return <nav className="pagination" aria-label="Pagination des demandes">
-    <p className="pagination-summary" role="status">{first} à {last} sur {total} demande{total > 1 ? "s" : ""}</p>
+    <p className="pagination-summary" role="status">{first} à {last} sur {total} {noun}{total > 1 ? "s" : ""}</p>
     <div className="pagination-controls">
       <Button variant="secondary" className="pagination-button" aria-label="Page précédente" title="Page précédente" disabled={page <= 1} onClick={() => onChange(page - 1)}><ChevronLeft size={18} /></Button>
       <span className="pagination-current">Page {page} sur {pageCount}</span>
