@@ -8,6 +8,7 @@ import { spaces } from "@/lib/navigation";
 import { useData, useDemoIdentity } from "@/lib/use-data";
 import { resetDemo } from "@/lib/api";
 import { Button, Dialog, useToast } from "@/components/ui";
+import { NotificationBell } from "@/components/common-pages";
 const icons = { FileText, Wallet, Bell, UserRound, ClipboardCheck, History, LayoutGrid, Banknote, ChartNoAxesColumn, UsersRound, Building2, ArrowLeftRight, Settings2, ListChecks };
 export default function Shell({ role, children }) {
   const pathname = usePathname();
@@ -32,7 +33,7 @@ export default function Shell({ role, children }) {
   function identity() { return <Link className="identity" href={`/${profile}/profil`} onClick={() => drawer.current?.close()}><span className="avatar">{space.initials}</span><span><strong>{name}</strong><small>{space.label}</small></span></Link>; }
   return <div className={`app-shell role-${role}`}>
     <aside className="sidebar"><Link href="/demo" aria-label="Accueil"><Brand /></Link>{selector()}{navigation()}<div className="sidebar-footer"><Button variant="ghost" onClick={() => setResetOpen(true)}>Réinitialiser la démo</Button></div></aside>
-    <header className="topbar"><div className="topbar-start"><button className="icon-button menu-toggle" aria-label="Ouvrir le menu" onClick={() => drawer.current.showModal()}><Menu size={22} /></button><span>CCAPAC <span className="muted">/</span> <strong>Assistance médicale</strong></span></div><div className="topbar-end"><Link className="icon-button notification-button" aria-label="Notifications" href={`/${profile}/notifications`}><Bell size={19} /><i /></Link>{identity()}</div></header>
+    <header className="topbar"><div className="topbar-start"><button className="icon-button menu-toggle" aria-label="Ouvrir le menu" onClick={() => drawer.current.showModal()}><Menu size={22} /></button><span>CCAPAC <span className="muted">/</span> <strong>Assistance médicale</strong></span></div><div className="topbar-end"><NotificationBell role={profile} />{identity()}</div></header>
     <dialog ref={drawer} className="drawer"><div className="row between"><Brand /><button className="icon-button" aria-label="Fermer le menu" onClick={() => drawer.current.close()}><X /></button></div>{selector()}{navigation()}<Button variant="ghost" onClick={() => setResetOpen(true)}>Réinitialiser la démo</Button><Link className="nav-link" href="/connexion"><LogOut size={18} />Déconnexion</Link></dialog>
     <Dialog open={resetOpen} onClose={() => setResetOpen(false)} title="Réinitialiser la démo ?" footer={<><Button variant="secondary" onClick={() => setResetOpen(false)}>Conserver les données</Button><Button loading={busy} onClick={async () => { setBusy(true); try { await resetDemo(); setResetOpen(false); toast("Données de démonstration réinitialisées."); } catch (error) { toast(error.message, "error"); } finally { setBusy(false); } }}>Réinitialiser</Button></>}><p>Les modifications locales seront remplacées par les 40 demandes et 25 utilisateurs de référence.</p></Dialog>
     <main id="contenu" className="main-content">{children}<footer className="page-footer"><span>CCAPAC · Centre Culturel Grand Tambour</span><span>Kinshasa, RDC</span></footer></main>

@@ -5,5 +5,12 @@
 .demo-selector select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--color-field); border-radius: var(--radius-field); background: var(--color-white); color: var(--color-ink); }
 .topbar .identity { border: 0; padding: 0; }
 .main-content > * { min-width: 0; }
+.notification-dropdown { position: relative; }
+.notification-dropdown summary { list-style: none; cursor: pointer; }
+.notification-dropdown summary::-webkit-details-marker { display: none; }
+.notification-popover { position: absolute; top: 52px; right: 0; width: 350px; max-width: calc(100vw - 32px); padding: 20px; border: 1px solid var(--color-line); border-radius: var(--radius-card); background: var(--color-white); z-index: 45; }
+.notification-popover a { display: block; padding: 14px 0; border-bottom: 1px solid var(--color-line); font-size: 12px; }
+.notification-popover small { display: block; color: var(--color-secondary); }
+@media(max-width: 600px) { .notification-popover { position: fixed; left: 16px; right: 16px; top: 72px; width: auto; } }
 .topbar .identity strong { max-width: 170px; overflow-wrap: anywhere; }
 @media(max-width: 600px) { .topbar .identity strong { max-width: 140px; font-size: 11px; }.topbar .identity small { font-size: 10px; } }

@@ -1,0 +1,12 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
+import Brand from "@/components/brand";
+import { Button, Input } from "@/components/ui";
+import { changePassword } from "@/lib/api";
+export default function PasswordPage({ mode }) {
+  const [visible, setVisible] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [success, setSuccess] = useState(false);
+  async function submit(event) { event.preventDefault(); setBusy(true); setError(""); try { await changePassword(Object.fromEntries(new FormData(event.currentTarget))); setSuccess(true); } catch (failure) { setError(failure.message); } finally { setBusy(false); } }
+  return <main id="contenu" className="auth-page"><header className="auth-top"><Link href="/demo" aria-label="Grand Tambour"><Brand /></Link></header><div className="auth-content stack"><h1>{mode === "sent" ? "E-mail envoyé" : mode === "first" ? "Première connexion" : "Nouveau mot de passe"}</h1>{mode === "sent" ? <><p>Si un compte correspond à cette adresse, un lien de réinitialisation lui sera envoyé.</p><p className="secondary">Démonstration : aucun e-mail réel n’est envoyé.</p><Button href="/nouveau-mot-de-passe">Ouvrir le lien de démonstration</Button></> : success ? <div role="status" className="stack"><CheckCircle2 /><h2>Mot de passe mis à jour</h2><p>Simulation enregistrée. Aucun mot de passe n’est conservé dans le navigateur.</p><Button href="/demo">Continuer</Button></div> : <form onSubmit={submit} className="stack"><p className="secondary">Choisissez un mot de passe d’au moins 12 caractères.</p><div className="password-field"><Input label="Nouveau mot de passe" name="password" type={visible ? "text" : "password"} autoComplete="new-password" minLength={12} required /><button type="button" className="icon-button" aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"} onClick={() => setVisible(!visible)}>{visible ? <EyeOff size={18} /> : <Eye size={18} />}</button></div><Input label="Confirmer le mot de passe" name="confirmation" type={visible ? "text" : "password"} autoComplete="new-password" required />{error && <p className="field-error" role="alert">{error}</p>}<Button type="submit" loading={busy}>Enregistrer le mot de passe</Button></form>}<Button href="/connexion" variant="ghost">Retour à la connexion</Button></div></main>;
+}

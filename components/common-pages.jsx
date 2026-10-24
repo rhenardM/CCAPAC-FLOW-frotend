@@ -7,6 +7,12 @@ import { markNotificationsRead, updateProfile } from "@/lib/api";
 import { formatDate } from "@/lib/api/rules";
 import { roleUserIds } from "@/lib/mock/data";
 import { spaces } from "@/lib/navigation";
+import Link from "next/link";
+export function NotificationBell({ role }) {
+  const { data } = useData();
+  const items = (data?.notifications || []).filter(item => item.role === role && (!item.agentId || item.agentId === roleUserIds.agent));
+  return <details className="notification-dropdown"><summary className="icon-button notification-button" aria-label="Ouvrir les notifications"><Bell size={19} />{items.some(item => !item.read) && <i />}</summary><div className="notification-popover"><h2>Notifications</h2>{items.slice(0, 4).map(item => <Link key={item.id} href={item.requestId ? `/${role}/demandes/${item.requestId}` : `/${role}/notifications`} onClick={event => event.currentTarget.closest("details").removeAttribute("open")}><strong>{item.title}</strong><small>{formatDate(item.date, true)}</small></Link>)}{!items.length && <p className="secondary">Aucune notification.</p>}<Link href={`/${role}/notifications`} onClick={event => event.currentTarget.closest("details").removeAttribute("open")}>Toutes les notifications</Link></div></details>;
+}
 export function Profile({ role }) {
   const { data, loading, error, reload } = useData(); if (loading) return <Skeleton />; if (error) return <ErrorState error={error} retry={reload} />;
   const user = data.users.find(person => person.id === roleUserIds[role]);
