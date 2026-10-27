@@ -16,7 +16,7 @@ export function AgentHome() {
   const [page, setPage] = useState(1);
   const pageSize = 5;
   if (loading) return <Skeleton />; if (error) return <ErrorState error={error} retry={reload} />;
-  const requests = ownRequests(data); const paid = requests.filter(request => request.status === "PAYEE");
+  const requests = ownRequests(data); const paid = requests.filter(request => request.status === "PAYEE").map(request => ({ ...request, amount: request.payment.amount }));
   const shown = requests.filter(request => (filter === "all" || (filter === "pending" && inProgress(request)) || (filter === "draft" && request.status === "BROUILLON") || (filter === "correction" && request.status === "A_CORRIGER")) && `${request.id} ${request.type}`.toLowerCase().includes(search.toLowerCase()));
   const currentPage = Math.min(page, Math.max(1, Math.ceil(shown.length / pageSize)));
   const pageRequests = shown.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -37,14 +37,14 @@ export function AgentHome() {
 export function AgentDetail({ id }) {
   const { data, loading, error, reload } = useData();
   if (loading) return <Skeleton />; if (error) return <ErrorState error={error} retry={reload} />;
-  const request = ownRequests(data).find(item => item.id === id);
+  const request = data.requests.find(item => item.id === id);
   if (!request) return <EmptyState title="Demande introuvable" action={<Button href="/agent">Mes demandes</Button>} />;
   return <><PageHeading title={request.id} description="Détail et suivi de votre demande" back="/agent" /><RequestDetail request={request} /></>;
 }
 export function AgentFormPage({ id }) {
   const { data, loading, error, reload } = useData();
   if (loading) return <Skeleton />; if (error) return <ErrorState error={error} retry={reload} />;
-  const request = id && ownRequests(data).find(item => item.id === id);
+  const request = id && data.requests.find(item => item.id === id);
   if (id && (!request || !["BROUILLON", "A_CORRIGER"].includes(request.status))) return <EmptyState title="Cette demande n’est pas modifiable" action={<Button href="/agent">Mes demandes</Button>} />;
   return <RequestForm key={id || "new"} request={request} types={data.settings.types} />;
 }
@@ -70,6 +70,6 @@ function RequestForm({ request, types }) {
 }
 export function AgentBalance() {
   const { data, loading, error, reload } = useData(); if (loading) return <Skeleton />; if (error) return <ErrorState error={error} retry={reload} />;
-  const requests = ownRequests(data).filter(request => new Date(request.date).getFullYear() === 2026);
+  const requests = ownRequests(data).filter(request => new Date(request.payment?.date || request.date).getFullYear() === 2026).map(request => request.payment ? { ...request, amount: request.payment.amount } : request);
   return <><PageHeading title="Mon solde annuel" description="Vos prises en charge et vos droits pour l’année 2026." back="/agent" /><div className="two-columns">{["CDF", "USD"].map(currency => { const ceiling = Number(data.settings[`ceiling${currency}`]); const used = requests.filter(request => request.status === "PAYEE" && request.currency === currency).reduce((sum, request) => sum + request.amount, 0); const pending = requests.filter(request => inProgress(request) && request.currency === currency).reduce((sum, request) => sum + request.amount, 0); return <Card key={currency} className="balance-card"><span className="eyebrow">SOLDE DISPONIBLE EN {currency}</span><CurrencyAmount amount={Math.max(0, ceiling - used)} currency={currency} className="amount-large" /><progress max={ceiling} value={Math.min(used, ceiling)} aria-label={`Plafond utilisé en ${currency}`} /><dl className="receipt-lines"><div><dt>Plafond annuel</dt><dd><CurrencyAmount amount={ceiling} currency={currency} /></dd></div><div><dt>Déjà perçu</dt><dd><CurrencyAmount amount={used} currency={currency} /></dd></div><div><dt>En cours d’examen</dt><dd><CurrencyAmount amount={pending} currency={currency} /></dd></div></dl></Card>; })}</div><div className="notice"><ShieldCheck size={18} /><p>Les montants en CDF et en USD sont comptabilisés séparément. Les demandes en cours ne sont pas encore déduites du solde.</p></div><h2 className="section-title">Prises en charge de l’année</h2><div className="request-list">{requests.filter(request => request.status === "PAYEE").map(request => <Link className="request-item" key={request.id} href={`/agent/demandes/${request.id}`}><span><strong>{request.type}</strong><small className="block muted">{formatDate(request.date)}</small></span><CurrencyAmount amount={request.amount} currency={request.currency} /></Link>)}</div></>;
 }

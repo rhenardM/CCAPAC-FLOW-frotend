@@ -20,10 +20,10 @@ export function ReviewPanel({ request, role }) {
 export function ReviewDetail({ role, id }) {
   const { data, loading, error, reload } = useData(); if (loading) return <Skeleton />; if (error) return <ErrorState error={error} retry={reload} />;
   const request = data.requests.find(item => item.id === id);
-  const back = role === "finance" ? "/finance/verifier" : role === "dg" ? "/dg/approuver" : "/responsable/valider";
+  const back = role === "admin" ? "/admin/demandes" : role === "finance" ? "/finance/verifier" : role === "dg" ? "/dg/approuver" : "/responsable/valider";
   if (!request) return <EmptyState title="Demande introuvable" action={<Button href={back}>Retour aux demandes</Button>} />;
   const next = data.requests.find(item => item.status === "EN_ATTENTE_DG" && item.id !== request.id);
-  return <><PageHeading title={role === "dg" ? "Demande à approuver" : role === "finance" ? "Demande à vérifier" : "Demande à valider"} description={request.id} back={back} action={role === "dg" && (next ? <Button href={`/dg/demandes/${next.id}`} variant="secondary">Demande suivante <ChevronRight size={16} /></Button> : <Button href="/dg/approuver" variant="secondary">Retour à la file</Button>)} /><div className="review-detail"><ReviewPanel key={request.id} request={request} role={role} /></div></>;
+  return <><PageHeading title={role === "admin" ? "Détail de la demande" : role === "dg" ? "Demande à approuver" : role === "finance" ? "Demande à vérifier" : "Demande à valider"} description={request.id} back={back} action={role === "dg" && (next ? <Button href={`/dg/demandes/${next.id}`} variant="secondary">Demande suivante <ChevronRight size={16} /></Button> : <Button href="/dg/approuver" variant="secondary">Retour à la file</Button>)} /><div className="review-detail" id="decision"><ReviewPanel key={request.id} request={request} role={role} />{request.status === "APPROUVEE" && <Button className="section-title" href={`/finance/paiement/${request.id}`}>Enregistrer le paiement</Button>}{request.payment && <Button className="section-title" href={`/finance/recu/${request.id}`} variant="secondary">Voir le reçu</Button>}</div></>;
 }
 export function RequestQueue({ role, history = false, payment = false }) {
   const { data, loading, error, reload } = useData(); const [search, setSearch] = useState(""); const [currency, setCurrency] = useState(""); const [department, setDepartment] = useState(""); const [status, setStatus] = useState(""); const [selected, setSelected] = useState(null); const toast = useToast();
